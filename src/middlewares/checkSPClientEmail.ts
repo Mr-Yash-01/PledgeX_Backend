@@ -2,18 +2,15 @@ import { Request, Response, NextFunction } from 'express';
 import admin from '../utils/firebase';
 
 const checkSPClientEmail = async (req: Request, res: Response, next: NextFunction) => {
-    const { clientEmail } = req.body;
-    console.log(clientEmail);
-    console.log(req.headers.token);
-    
+    const { clientEmail } = req.body;  
     
     if (!clientEmail) {
         res.status(400).json({ message: 'Email is required' });
     } else{
         try {
             const userRecord = await admin.auth().getUserByEmail(clientEmail);
-            console.log(userRecord);
             if (userRecord) {
+                req.body.clientId = userRecord.uid;
                 next();
             }
 
