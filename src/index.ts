@@ -3,6 +3,7 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 import authRouter from "./routes/authRoutes";
+import userRouter from "./routes/userRoutes";
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ app.use(bodyParser.json());
 // Routes
 // app.use("/api/auth", authRoutes);
 app.use('/auth', authRouter);
+app.use('/user', userRouter);
 
 // Default Route
 app.get("/", (req: Request, res: Response) => {

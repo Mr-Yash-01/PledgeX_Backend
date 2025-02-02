@@ -1,8 +1,14 @@
 import { Router } from 'express';
 import { getUsers } from '../controllers/userController';
+import freelancerRouter from './freelancerRoutes';
+import clientRouter from './clientRoutes';
 
-const router = Router();
+const userRouter = Router();
 
-router.get('/', getUsers);
+userRouter.use('/f', freelancerRouter);
+userRouter.use('/c', clientRouter);
 
-export default router;
+
+userRouter.get('/', getUsers);
+
+export default userRouter;
