@@ -37,4 +37,29 @@ freelancerRouter.post('/sp',checkSPEmail,checkSPClientEmail, async (req, res, ne
     }
 });
 
+
+freelancerRouter.put('/sm', async (req, res, next) => {
+    try {
+        const { projectId, index } = req.body;
+        
+        const milestoneDocRef = admin.firestore().collection('Projects').doc(projectId);
+        
+        const milestoneData = (await milestoneDocRef.get()).data();
+
+        if (milestoneData && milestoneData.milestones && milestoneData.milestones[index]) {
+            milestoneData.milestones[index].status = 'sent';
+            await milestoneDocRef.update({ milestones: milestoneData.milestones });
+        } else {
+            res.status(400).json({ message: 'Invalid project ID or milestone index' });
+            return;
+        }
+
+        res.status(200).json({ message: 'Milestone status updated successfully' });
+
+    } catch (error: any) {
+        console.error('Error updating milestone status:', error);
+        next(error);
+    }
+});
+
 export default freelancerRouter;
