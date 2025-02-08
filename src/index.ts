@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import authRouter from "./routes/authRoutes";
 import userRouter from "./routes/userRoutes";
 import fetchProjectsRouter from "./routes/fetchProjects";
+import fetchFreelancersRoute from "./routes/fetchFreelancers";
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ app.use(bodyParser.json());
 app.use('/auth', authRouter);
 app.use('/user', userRouter);
 app.use('/fetchProjects', fetchProjectsRouter);
+app.use('/fetchFreelancers', fetchFreelancersRoute);
 
 // Default Route
 app.get("/", (req: Request, res: Response) => {
