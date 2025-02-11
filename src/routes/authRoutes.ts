@@ -11,4 +11,9 @@ const authRouter = express.Router();
 authRouter.use('/signin', signinRouter);
 authRouter.use('/signup', signupRouter);
 
+authRouter.post('/signout', (req: Request, res: Response) => {
+    res.clearCookie('token');
+    res.status(200).send('Signed out successfully');
+    });
+
 export default authRouter;
