@@ -34,8 +34,10 @@
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
+    "ethers": "^6.13.5",
     "express": "^4.21.2",
-    "firebase-admin": "^13.0.2"
+    "firebase-admin": "^13.0.2",
+    "uuidv4": "^6.2.13"
   },
   "nodemonConfig": {
     "watch": [

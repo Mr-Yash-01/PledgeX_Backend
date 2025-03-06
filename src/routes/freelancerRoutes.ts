@@ -2,37 +2,51 @@ import { Router } from "express";
 import admin from "../utils/firebase";
 import checkSPEmail from "../middlewares/checkSPEmail";
 import checkSPClientEmail from "../middlewares/checkSPClientEmail";
+import { v4 as uuidv4 } from "uuid";
 
 const freelancerRouter = Router();
 
-freelancerRouter.post('/sp',checkSPEmail,checkSPClientEmail, async (req, res, next) => {
+freelancerRouter.post('/sp', checkSPEmail, checkSPClientEmail, async (req, res, next) => {
     try {
+        console.log('Request Body:', req.body);
         
-        const projectData = req.body.projectData;
-        const projectRef = admin.firestore().collection('Projects');
-        const response = await projectRef.add(projectData);
-        const projectId = response.id;
+        const { clientPublicAddress, freelanceruid, clientId, projectData } = req.body;
 
-        
-        
-        const freelanceruid = req.body.freelanceruid;
-        const clientuid = req.body.clientId;
-        
+        if (!clientPublicAddress) {
+            res.status(400).json({ error: "Client wallet address missing" });
+        }
+
+        // ✅ Generate projectId manually before adding to Firestore
+        const projectId = uuidv4(); 
+
+        // ✅ Add projectId to projectData
+        projectData.projectId = projectId;
+
+        // ✅ Firestore: Store project data with custom projectId
+        const projectRef = admin.firestore().collection('Projects').doc(projectId);
+        await projectRef.set(projectData);
+
+        // ✅ Firestore: Link project to Freelancer
         const freelancerRef = admin.firestore().collection('Freelancers').doc(freelanceruid);
         await freelancerRef.update({
             projects: admin.firestore.FieldValue.arrayUnion(projectId)
         });
-        
-        const clientRef = admin.firestore().collection('Clients').doc(clientuid);
+
+        // ✅ Firestore: Link project to Client
+        const clientRef = admin.firestore().collection('Clients').doc(clientId);
         await clientRef.update({
             projects: admin.firestore.FieldValue.arrayUnion(projectId)
         });
 
-        res.status(201).json({ message: 'Project created successfully' });
+        // ✅ Send response with projectId for escrow deposit
+        res.status(201).json({ 
+            message: 'Project created successfully', 
+            projectId,
+            clientPublicAddress 
+        });
 
-    } catch (error: any) {
-        console.error('Error uploading doc:', error);
-        next(error);
+    } catch (error) {
+        console.error('Error creating project:', error);
         
     }
 });
