@@ -7,7 +7,7 @@ const serviceAccount = path.resolve(__dirname, "../firebase.json");
 try {
   admin.initializeApp({
     credential: admin.credential.cert(require(serviceAccount)),
-    databaseURL: "https://pledgex-68789.firebaseio.com", // Replace with your Firebase database URL
+    databaseURL: process.env.FIREBASE_URL, // Replace with your Firebase database URL
   });
   console.log("Firebase Admin SDK initialized successfully.");
 } catch (error) {

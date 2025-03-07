@@ -1,18 +1,23 @@
-require("dotenv").config();
-const { ethers } = require("ethers");
-const fs = require("fs");
+import { ethers } from "ethers";
+import fs from "fs";
+import path from "path";
 
-// Load contract details
-const ESCROW_ADDRESS = process.env.ESCROW_ADDRESS;
-const RPC_URL = process.env.RPC_URL;
-const ESCROW_ABI = JSON.parse(fs.readFileSync("./Escrow.json")).abi;
+
+// ✅ Fix file path issue (ensure correct location)
+const ESCROW_ABI_PATH = path.join(__dirname, "../Escrow.json");
+const ESCROW_ABI = JSON.parse(fs.readFileSync(ESCROW_ABI_PATH, "utf8")).abi;
 
 // Create Provider (Read-Only)
-const provider = new ethers.JsonRpcProvider(RPC_URL);
+const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+console.log("sfgsfgsgfsfgf",process.env.ESCROW_ADDRESS);
 
-// Create Contract Instance (Read-Only)
+const ESCROW_ADDRESS = process.env.ESCROW_ADDRESS;
+if (!ESCROW_ADDRESS) {
+  throw new Error("ESCROW_ADDRESS is not defined in the .env file");
+}
+
 const escrowContract = new ethers.Contract(ESCROW_ADDRESS, ESCROW_ABI, provider);
 
 console.log("✅ Escrow contract initialized globally!");
 
-module.exports = { escrowContract, provider };
+export { escrowContract, provider };

@@ -11,34 +11,35 @@ freelancerRouter.post('/sp', checkSPEmail, checkSPClientEmail, async (req, res, 
         console.log('Request Body:', req.body);
         
         const { clientPublicAddress, freelanceruid, clientId, projectData } = req.body;
-
+        console.log("client id is ", clientId);
+        
         if (!clientPublicAddress) {
             res.status(400).json({ error: "Client wallet address missing" });
         }
 
-        // ✅ Generate projectId manually before adding to Firestore
+        //  Generate projectId manually before adding to Firestore
         const projectId = uuidv4(); 
 
-        // ✅ Add projectId to projectData
+        //  Add projectId to projectData
         projectData.projectId = projectId;
 
-        // ✅ Firestore: Store project data with custom projectId
+        //  Firestore: Store project data with custom projectId
         const projectRef = admin.firestore().collection('Projects').doc(projectId);
         await projectRef.set(projectData);
 
-        // ✅ Firestore: Link project to Freelancer
+        //  Firestore: Link project to Freelancer
         const freelancerRef = admin.firestore().collection('Freelancers').doc(freelanceruid);
         await freelancerRef.update({
             projects: admin.firestore.FieldValue.arrayUnion(projectId)
         });
 
-        // ✅ Firestore: Link project to Client
+        //  Firestore: Link project to Client
         const clientRef = admin.firestore().collection('Clients').doc(clientId);
         await clientRef.update({
             projects: admin.firestore.FieldValue.arrayUnion(projectId)
         });
 
-        // ✅ Send response with projectId for escrow deposit
+        //  Send response with projectId for escrow deposit
         res.status(201).json({ 
             message: 'Project created successfully', 
             projectId,
