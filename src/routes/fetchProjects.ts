@@ -17,7 +17,6 @@ fetchProjectsRouter.get("/", async (req, res) => {
 
     const userDoc = await firestore().collection(role).doc(userId).get();
 
-
     if (!userDoc.exists) {
       res.status(404).json({ error: "User not found or has no projects" });
     }
@@ -27,27 +26,26 @@ fetchProjectsRouter.get("/", async (req, res) => {
 
     if (projectIds.length === 0) {
       res.status(200).json({ message: "No projects found", projects: [] });
+    } else {
+      // Fetch all project documents in parallel
+      const projectDocs = await Promise.all(
+        projectIds.map((projectId) =>
+          firestore().collection("Projects").doc(projectId).get()
+        )
+      );
+
+      // Extract data from documents
+      const projects = projectDocs
+        .filter((doc) => doc.exists)
+        .map((doc) => ({ id: doc.id, ...doc.data() }));
+
+      console.log("Projects fetched successfully.");
+      res.status(200).json({ projects });
     }
-
-    // Fetch all project documents in parallel
-    const projectDocs = await Promise.all(
-      projectIds.map((projectId) =>
-        firestore().collection("Projects").doc(projectId).get()
-      )
-    );
-
-    // Extract data from documents
-    const projects = projectDocs
-      .filter((doc) => doc.exists)
-      .map((doc) => ({ id: doc.id, ...doc.data() }));
-
-    console.log("Projects fetched successfully.");
-    res.status(200).json({ projects });
   } catch (error) {
     console.error("Error fetching projects:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
 
 export default fetchProjectsRouter;

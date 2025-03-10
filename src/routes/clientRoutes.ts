@@ -15,7 +15,9 @@ clientRouter.post(
     const { projectId, amount } = req.body;
 
     try {
-      const amountInWei = ethers.parseEther(amount.toString());
+      // ✅ Ensure amount has at most 18 decimals
+      const fixedAmount = Number(amount).toFixed(18); // Limits to 18 decimals
+      const amountInWei = ethers.parseEther(fixedAmount);
 
       // Create a transaction object (unsigned)
       const txData = {
@@ -35,7 +37,7 @@ clientRouter.post(
       });
     } catch (error) {
       console.error("Error creating transaction:", error);
-      res.status(500).json({ success: false, error: error || error });
+      res.status(500).json({ success: false, error: error });
     }
   }
 );
@@ -46,6 +48,7 @@ clientRouter.post(
   checkSPClientEmail,
   async (req, res) => {
     try {
+      
       const { clientUId, freelancerUId, projectData } = req.body;
 
       //  Add projectId to projectData
@@ -98,11 +101,33 @@ clientRouter.put("/sm", async (req, res) => {
   try {
     const { freelancerPublicAddress, totalAmount, projectId, index } = req.body;
 
+
+    const formattedFreelancerPUblicAddress = ethers.getAddress(
+      freelancerPublicAddress
+    );
+
+    if (!projectId) {
+      res.status(400).json({ message: "Invalid projectId" });
+      return;
+    }
+
+    if (!totalAmount || isNaN(totalAmount)) {
+      res.status(400).json({ message: "Invalid totalAmount" });
+      return;
+    }
+
+    const balance = await escrowContract.getBalance(projectId);
+    console.log(`Balance for project ${projectId}:`, balance.toString());
+
+    const formattedAmount = ethers.parseUnits(totalAmount.toFixed(18), "ether");
+    console.log("details", projectId, index, formattedFreelancerPUblicAddress, formattedAmount);
+    
     const tx = await escrowContract.releaseFunds(
       projectId,
-      freelancerPublicAddress,
-      totalAmount
+      formattedFreelancerPUblicAddress,
+      formattedAmount
     );
+
     const txResult = await tx.wait();
 
     if (txResult.status === 1) {
@@ -110,7 +135,6 @@ clientRouter.put("/sm", async (req, res) => {
         .firestore()
         .collection("Projects")
         .doc(projectId);
-
       const milestoneData = (await milestoneDocRef.get()).data();
 
       if (
@@ -118,7 +142,7 @@ clientRouter.put("/sm", async (req, res) => {
         milestoneData.milestones &&
         milestoneData.milestones[index]
       ) {
-        milestoneData.milestones[index].status = "sent";
+        milestoneData.milestones[index].status = "approved";
         await milestoneDocRef.update({ milestones: milestoneData.milestones });
       } else {
         res
@@ -126,12 +150,22 @@ clientRouter.put("/sm", async (req, res) => {
           .json({ message: "Invalid project ID or milestone index" });
         return;
       }
-      res.status(200).json({ message: "Milestone status updated successfully" });
+
+      console.log('all done');
+      const balance = await escrowContract.getBalance(projectId);
+      console.log(`Balance for project ${projectId}:`, balance.toString());
+      
+      res
+        .status(200)
+        .json({ message: "Milestone status updated successfully" });
     } else {
       res.status(400).json({ message: "Error while releasing funds" });
     }
   } catch (error: any) {
     console.error("Error updating milestone status:", error);
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
   }
 });
 
