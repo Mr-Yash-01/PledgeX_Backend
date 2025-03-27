@@ -4,7 +4,6 @@ import admin from '../utils/firebase';
 const checkSPClientEmail = async (req: Request, res: Response, next: NextFunction) => {
     const { freelancerEmail } = req.body;  
 
-    console.log('Freelancer Email:', freelancerEmail);
     
     
     if (!freelancerEmail) {

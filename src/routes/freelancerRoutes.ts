@@ -8,10 +8,9 @@ const freelancerRouter = Router();
 
 freelancerRouter.post('/sp', checkSPEmail, checkSPClientEmail, async (req, res, next) => {
     try {
-        console.log('Request Body:', req.body);
         
         const { clientPublicAddress, freelanceruid, clientId, projectData } = req.body;
-        console.log("client id is ", clientId);
+        
         
         if (!clientPublicAddress) {
             res.status(400).json({ error: "Client wallet address missing" });

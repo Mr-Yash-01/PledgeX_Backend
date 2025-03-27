@@ -7,7 +7,6 @@ const signupRouter = Router();
 signupRouter.post("/", async (req, res) => {
     const { uid, email, password, role, picture, name, about, publicAddress } = req.body;
 
-    console.log(uid, email, password, role, picture, name, about, publicAddress);
     
 
     if (!uid) {

@@ -5,7 +5,6 @@ const fetchProjectsRouter = Router();
 
 fetchProjectsRouter.get("/", async (req, res) => {
   try {
-    console.log("Fetching projects...");
 
     // Extract query parameters instead of using req.body (GET requests don't have a body)
     const role = req.query.role as string;
@@ -21,7 +20,6 @@ fetchProjectsRouter.get("/", async (req, res) => {
       res.status(404).json({ error: "User not found or has no projects" });
     }
 
-    console.log("User found, fetching project IDs...");
     const projectIds: string[] = userDoc.data()?.projects || [];
 
     if (projectIds.length === 0) {
@@ -39,7 +37,6 @@ fetchProjectsRouter.get("/", async (req, res) => {
         .filter((doc) => doc.exists)
         .map((doc) => ({ id: doc.id, ...doc.data() }));
 
-      console.log("Projects fetched successfully.");
       res.status(200).json({ projects });
     }
   } catch (error) {

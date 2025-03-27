@@ -9,7 +9,7 @@ try {
     credential: admin.credential.cert(require(serviceAccount)),
     databaseURL: process.env.FIREBASE_URL, // Replace with your Firebase database URL
   });
-  console.log("Firebase Admin SDK initialized successfully.");
+  // console.log("Firebase Admin SDK initialized successfully.");
 } catch (error) {
   console.error("Error initializing Firebase Admin SDK:", error);
 }

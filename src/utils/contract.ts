@@ -35,7 +35,7 @@ const signer = new ethers.Wallet(PRIVATE_KEY, provider);
 // ✅ Attach Signer to Contract
 const escrowContract = new ethers.Contract(ESCROW_ADDRESS, ESCROW_ABI, signer);
 
-console.log("✅ Escrow contract initialized with a signer!");
+// console.log("✅ Escrow contract initialized with a signer!");
 
 export { escrowContract, provider, signer };
 

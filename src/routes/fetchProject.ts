@@ -5,7 +5,6 @@ const fetchProjectRouter = Router();
 
 fetchProjectRouter.get("/", async (req, res) => {
      try {
-          console.log("Fetching project...");
 
           const projectId = req.query.projectId as string;
 
@@ -20,7 +19,6 @@ fetchProjectRouter.get("/", async (req, res) => {
                res.status(404).json({ error: "Project not found" });
           }
 
-          console.log("Project found, fetching data...");
           const projectData = projectDoc.data();
 
           res.status(200).json({ projectData });

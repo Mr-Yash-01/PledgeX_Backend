@@ -54,12 +54,6 @@ clientRouter.post(
       //  Add projectId to projectData
       const projectId = projectData.projectId;
 
-      console.log(1);
-
-      console.log(projectId);
-      console.log(projectData);
-
-      console.log(projectData.projectId);
 
       //  Firestore: Store project data with custom projectId
       const projectRef = admin
@@ -68,14 +62,12 @@ clientRouter.post(
         .doc(projectId);
       await projectRef.set(projectData);
 
-      console.log(2);
 
       //  Firestore: Link project to Client
       const clientRef = admin.firestore().collection("Clients").doc(clientUId);
       await clientRef.update({
         projects: admin.firestore.FieldValue.arrayUnion(projectId),
       });
-      console.log(3);
 
       //  Firestore: Link project to Freelancer
       const freelancerRef = admin
@@ -101,7 +93,7 @@ clientRouter.put("/sm", async (req, res) => {
   try {
     const { freelancerPublicAddress, totalAmount, projectId, index } = req.body;
 
-
+    
     const formattedFreelancerPUblicAddress = ethers.getAddress(
       freelancerPublicAddress
     );
@@ -117,10 +109,8 @@ clientRouter.put("/sm", async (req, res) => {
     }
 
     const balance = await escrowContract.getBalance(projectId);
-    console.log(`Balance for project ${projectId}:`, balance.toString());
 
     const formattedAmount = ethers.parseUnits(totalAmount.toFixed(18), "ether");
-    console.log("details", projectId, index, formattedFreelancerPUblicAddress, formattedAmount);
     
     const tx = await escrowContract.releaseFunds(
       projectId,
@@ -151,9 +141,7 @@ clientRouter.put("/sm", async (req, res) => {
         return;
       }
 
-      console.log('all done');
       const balance = await escrowContract.getBalance(projectId);
-      console.log(`Balance for project ${projectId}:`, balance.toString());
       
       res
         .status(200)
