@@ -15,9 +15,14 @@ authRouter.use("/signin", signinRouter);
 authRouter.use("/signup", signupRouter);
 
 authRouter.post("/signout", (req: Request, res: Response) => {
-  res.clearCookie("token");
-  res.status(200).send("Signed out successfully");
-});
+    res.clearCookie("token", {
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",           // always include this
+      secure: false,       // MUST match the `secure` setting you used when setting the cookie
+    });
+    res.status(200).send("Signed out successfully");
+  });
 
 authRouter.post("/verify", async (req: Request, res: Response) => {
     const token = req.body.token;

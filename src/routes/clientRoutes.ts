@@ -91,7 +91,7 @@ clientRouter.post(
 
 clientRouter.put("/sm", async (req, res) => {
   try {
-    const { freelancerPublicAddress, totalAmount, projectId, index } = req.body;
+    const { freelancerPublicAddress, totalAmount, projectId, index, milestoneAmount } = req.body;
 
     
     const formattedFreelancerPUblicAddress = ethers.getAddress(
@@ -108,9 +108,16 @@ clientRouter.put("/sm", async (req, res) => {
       return;
     }
 
+    console.log(1);
+    
     const balance = await escrowContract.getBalance(projectId);
 
-    const formattedAmount = ethers.parseUnits(totalAmount.toFixed(18), "ether");
+    if (balance < totalAmount) {
+      res.status(400).json({ message: "Insufficient balance" });
+      return;
+    }
+
+    const formattedAmount = ethers.parseUnits(milestoneAmount.toFixed(18), "ether");
     
     const tx = await escrowContract.releaseFunds(
       projectId,
@@ -121,27 +128,27 @@ clientRouter.put("/sm", async (req, res) => {
     const txResult = await tx.wait();
 
     if (txResult.status === 1) {
-      const milestoneDocRef = admin
+      const projectDocRef = admin
         .firestore()
         .collection("Projects")
         .doc(projectId);
-      const milestoneData = (await milestoneDocRef.get()).data();
+      const projectData = (await projectDocRef.get()).data();
 
       if (
-        milestoneData &&
-        milestoneData.milestones &&
-        milestoneData.milestones[index]
+        projectData &&
+        projectData.milestones &&
+        projectData.milestones[index]
       ) {
-        milestoneData.milestones[index].status = "approved";
-        await milestoneDocRef.update({ milestones: milestoneData.milestones });
+        projectData.milestones[index].status = "approved";
+        projectData.statistics.milestonesCompleted += 1;
+        projectData.statistics.paymentDone += milestoneAmount;
+        await projectDocRef.update({ milestones: projectData.milestones, statistics: projectData.statistics });
       } else {
         res
           .status(400)
           .json({ message: "Invalid project ID or milestone index" });
         return;
       }
-
-      const balance = await escrowContract.getBalance(projectId);
       
       res
         .status(200)
