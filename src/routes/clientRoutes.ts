@@ -112,7 +112,8 @@ clientRouter.put("/sm", async (req, res) => {
     
     const balance = await escrowContract.getBalance(projectId);
 
-    if (balance < totalAmount) {
+
+    if (balance < milestoneAmount) {
       res.status(400).json({ message: "Insufficient balance" });
       return;
     }

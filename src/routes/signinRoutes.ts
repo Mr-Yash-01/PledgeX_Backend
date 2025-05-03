@@ -62,7 +62,7 @@ signinRouter.post('/gg', async (req: Request, res: Response) => {
             // If not found, fetch user document from the second collection
             userDoc = await admin.firestore().collection('Freelancers').doc(uid).get();
             if (!userDoc.exists) {
-                res.status(404).json({ error: 'User document does not exist in both collections' });
+                res.json({path : 'signup' });
                 return;
             }
         }
@@ -79,7 +79,7 @@ signinRouter.post('/gg', async (req: Request, res: Response) => {
         res.status(200).json({ user: { uid, email, name, picture, ...user } });
     } catch (error: any) {
         if (error.code === 'auth/user-not-found') {
-            res.status(404).json({ error: 'User does not exist' });
+            res.json({ path : 'signup' });
         } else {
             console.error('Error fetching user:', error);
             res.status(500).json({ error: 'Internal Server Error' });
@@ -100,7 +100,7 @@ signinRouter.post('/gh', async (req: Request, res: Response) => {
             // If not found, fetch user document from the second collection
             userDoc = await admin.firestore().collection('Freelancers').doc(uid).get();
             if (!userDoc.exists) {
-                res.status(404).json({ error: 'User document does not exist in both collections' });
+                res.json({path : 'signup' });
                 return;
             }
         }
@@ -117,7 +117,7 @@ signinRouter.post('/gh', async (req: Request, res: Response) => {
         res.status(200).json({ user: { uid, email, name, picture, ...user } });
     } catch (error: any) {
         if (error.code === 'auth/user-not-found') {
-            res.status(404).json({ error: 'User does not exist' });
+            res.json({path : 'signup' });
         } else {
             console.error('Error fetching user:', error);
             res.status(500).json({ error: 'Internal Server Error' });
